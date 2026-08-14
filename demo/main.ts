@@ -1,10 +1,7 @@
 /* data-buddy demo — https://data-buddy.lucianlabs.ca
  *
- * This demo resolves @dank-inc/data-buddy from node_modules rather than from
- * working-tree source, because this repo has no source: only package.json,
- * tsconfig.json and CI config were ever committed. The published 0.3.0 tarball
- * is the only surviving copy of the implementation, so it is what the demo
- * exercises — and what the review was written against.
+ * The import below is aliased to src/lib in vite.demo.config.ts, so the page
+ * exercises working-tree source rather than the published tarball.
  */
 
 import { DataBuddy } from '@dank-inc/data-buddy'
@@ -61,10 +58,10 @@ type Take = { id: string | number; name: string; bars: number; sealed: boolean }
 
 const db = new DataBuddy<Take>(seed)
 
-db.get()                       // Take[]
+db.get()                       // Take[] (a copy)
 db.getOne('tk-002')            // Take | null
 db.create({ name: 'new', bars: 4, sealed: false })  // Take, id generated
-db.update('tk-002', { bars: 12 })                   // Take | false
+db.update('tk-002', { bars: 12 })                   // Take | null
 db.delete('tk-003')                                 // boolean`
   s.append(install, c)
 }
@@ -78,8 +75,8 @@ function storeSection() {
       'p',
       'wl-muted',
       'Every button below calls the real library and prints what came back. The ' +
-        'table is db.get() after the call — the store is the single array the ' +
-        'instance was constructed with.'
+        'table is db.get() after the call. Try an id that does not exist: a miss ' +
+        'is null from getOne and update, false from delete, and never a write.'
     )
   )
 
@@ -214,12 +211,12 @@ function apiSection() {
   const api = document.createElement('wl-api')
   s.append(api)
   ;(api as HTMLElement & { rows: unknown }).rows = [
-    { name: 'new DataBuddy<T>', kind: 'class', signature: '(records: T[]) => DataBuddy<T>', about: 'Wraps the array you pass. It is held by reference, not copied.' },
-    { name: '.data', kind: 'property', signature: 'T[]', about: 'The backing array, public and mutable.' },
-    { name: '.get', kind: 'method', signature: '() => T[]', about: 'Returns the backing array itself.' },
-    { name: '.getOne', kind: 'method', signature: '(id: UUID) => T | null', about: 'First record with a matching id, else null.' },
+    { name: 'new DataBuddy<T>', kind: 'class', signature: '(records: T[], genId?: () => T["id"]) => DataBuddy<T>', about: 'Copies the array you pass. Supply genId for stores whose id is not a string.' },
+    { name: '.data', kind: 'property', signature: 'readonly T[]', about: 'The backing array. Readable, but replacing it is a type error.' },
+    { name: '.get', kind: 'method', signature: '() => T[]', about: 'A copy of the records, so callers cannot mutate the store through it.' },
+    { name: '.getOne', kind: 'method', signature: '(id: T["id"]) => T | null', about: 'First record with a matching id, else null.' },
     { name: '.create', kind: 'method', signature: '(body: Omit<T, "id">) => T', about: 'Appends with a generated id and returns the new record.' },
-    { name: '.update', kind: 'method', signature: '(id: UUID, body: Partial<T>) => T | false', about: 'Shallow-merges a patch. See the review note on the index guard.' },
-    { name: '.delete', kind: 'method', signature: '(id: UUID) => boolean', about: 'Removes by id. See the review note on the index guard.' },
+    { name: '.update', kind: 'method', signature: '(id: T["id"], body: Partial<T>) => T | null', about: 'Shallow-merges a patch, or null if no record has that id.' },
+    { name: '.delete', kind: 'method', signature: '(id: T["id"]) => boolean', about: 'Removes by id. True when a record was actually removed.' },
   ]
 }

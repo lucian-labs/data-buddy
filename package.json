@@ -12,20 +12,17 @@
     "lib"
   ],
   "main": "lib/index.js",
+  "types": "lib/index.d.ts",
   "scripts": {
     "lint": "tsc --noEmit",
     "compile": "rm -rf lib && tsc",
-    "deploy": "npm run compile && npm publish",
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "deploy": "npm test && npm publish",
+    "test": "npm run compile && node --test test/*.test.js",
     "demo": "vite --config vite.demo.config.ts",
     "demo:build": "vite build --config vite.demo.config.ts"
   },
   "devDependencies": {
-    "@dank-inc/data-buddy": "^0.3.0",
     "typescript": "^5.9.3",
     "vite": "^5.4.21"
-  },
-  "dependencies": {
-    "@dank-inc/lewps": "^0.10.1"
   }
 }

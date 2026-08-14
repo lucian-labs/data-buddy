@@ -1,4 +1,6 @@
 node_modules
-dist
-lib
+# Anchored: an unanchored `lib` also matches src/lib, which is how the library
+# source got silently untracked and lost between 0.1.2 and 0.3.0.
+/lib
+/dist
 demo/dist

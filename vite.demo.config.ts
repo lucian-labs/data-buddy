@@ -6,8 +6,15 @@ import { resolve } from 'path'
 export default defineConfig({
   root: 'demo',
   base: './',
-  // No source alias: this library resolves from node_modules, so the demo
-  // exercises the published tarball rather than the working tree.
+
+  resolve: {
+    // The demo imports the package by name but resolves to working-tree source,
+    // so the page shows the behaviour of the code in this repo, not of the last
+    // published tarball.
+    alias: {
+      '@dank-inc/data-buddy': resolve(__dirname, 'src/lib/index.ts'),
+    },
+  },
 
   build: {
     outDir: 'dist',
